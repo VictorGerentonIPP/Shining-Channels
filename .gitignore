@@ -1,0 +1,13 @@
+data/
+results/
+zenodo/
+zenodo_upload/
+__pycache__/
+*.egg-info/
+env/
+.venv/
+*.log
+ToDo.md
+latex/*.aux
+latex/*.out
+latex/*.pdf

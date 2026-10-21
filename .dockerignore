@@ -1,0 +1,13 @@
+data
+results
+zenodo
+zenodo_upload
+communication_impact_out
+tools
+latex
+env
+.git
+**/__pycache__
+**/*.egg-info
+*.pdf
+*.log
