@@ -34,6 +34,14 @@ Dependencies are declared in `pyproject.toml` (version ranges) and `requirements
 
 ## Installation
 
+### Get the artifact
+
+```bash
+git clone https://github.com/VictorGerentonIPP/Shining-Channels.git
+
+cd Shining-Channels
+
+
 ### With Docker
 
 ```bash
