@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shining-channels"
+version = "0.1.0"
+description = "Artifact of the paper Shining Channels: Long-Range Side-Channel Attacks over Optical Fiber"
+requires-python = ">=3.10"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+dependencies = [
+    "numpy>=2.0",
+    "matplotlib>=3.8",
+    "scalib>=0.6.4,<0.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "ruff"]
+convert = ["lecroyscope"]
+
+[project.scripts]
+shining-run-all = "shining_channels.run_all:main"
+shining-download = "shining_channels.data:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+line-length = 120
