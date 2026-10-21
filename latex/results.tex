@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\begin{document}
+
+\section*{Table 2: per-byte CPA results}
+\begin{center}
+\resizebox{\linewidth}{!}{\input{../results/table2.tex}}
+\end{center}
+
+\section*{Figure 2: SNR of the EM traces}
+\includegraphics[width=\linewidth]{../results/fig2_snr_em.pdf}
+
+\section*{Figure 4: laser gating}
+\includegraphics[width=\linewidth]{../results/fig4_trace.pdf}
+
+\section*{Figure 5: SNR of the optical traces}
+\includegraphics[width=\linewidth]{../results/fig5_snr_optical.pdf}
+
+\section*{Figure 6: CPA correlation traces}
+\includegraphics[width=\linewidth]{../results/fig6_cpa_byte0.pdf}
+
+\section*{Figure 7: key rank at 0 dBm}
+\includegraphics[width=\linewidth]{../results/fig7_keyrank.pdf}
+
+\section*{Figure 8: key rank at $-11$ dBm}
+\includegraphics[width=\linewidth]{../results/fig8_keyrank_attenuated.pdf}
+
+\section*{Figure 9: concurrent NRZ communication}
+\includegraphics[width=0.7\linewidth]{../results/fig9_nrz_rank.pdf}
+
+\end{document}
