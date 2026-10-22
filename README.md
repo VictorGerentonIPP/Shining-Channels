@@ -9,23 +9,22 @@
 This artifact reproduces the analysis of the paper: the SNR and correlation power analysis (CPA) of the optical and electromagnetic traces acquired on a commercial SFP module, the key-rank estimation as a function of the number of traces (at 0 dBm and at -11 dBm), and the simulation of the impact of concurrent NRZ communication.
 The acquisition itself requires the target SFP module, a PIN photodiode and an oscilloscope; it is not reproducible without that hardware. The traces are therefore provided as three datasets on Zenodo, and the artifact downloads them automatically.
 
-## What is and is not covered
+## Reproduced results
 
-| Paper element | Covered | Command |
+| Paper element | What it shows | Command |
 |---|---|---|
-| Table 2: per-byte CPA results | yes | `table2` |
-| Figure 2: SNR of the EM traces | yes | `fig2` |
-| Figure 4: optical trace with the laser gating | yes | `fig4` |
-| Figure 5: SNR of the optical traces | yes | `fig5` |
-| Figure 6: CPA correlation traces, byte 0 | yes | `fig6` |
-| Figure 7: key rank versus number of traces (0 dBm) | yes | `fig7` |
-| Figure 8: key rank versus number of traces (-11 dBm) | yes | `fig8` |
-| Figure 9: impact of concurrent NRZ communication (simulation) | yes | `fig9` |
-
+| Table 2 (Section 7.2) | Per-byte CPA results on the 9 000 optical traces at 0 dBm. For each of the 16 key bytes: the correlation peak of the correct sub-key, the highest peak among the 255 wrong hypotheses, and the rank of the correct sub-key among the 256 candidates. All 16 sub-keys are ranked first, so the full AES-128 key is recovered. | `table2` |
+| Figure 2 (Section 5.4) | SNR of the electromagnetic traces along the acquisition window (classes: first-round SubBytes output, key byte 5). It locates in time the data-dependent leakage of the SoC, which appears as a single peak above the noise floor. | `fig2` |
+| Figure 4 (Section 6.2) | One optical trace showing the laser gating: the laser is switched on and off around the targeted operation of the first round, and the rising edge of the optical signal triggers the oscilloscope. | `fig4` |
+| Figure 5 (Section 7.1) | SNR of the optical traces (classes: first-round SubBytes output, key byte 0). The peak above the noise floor shows that the data-dependent leakage reaches the emitted light. | `fig5` |
+| Figure 6 (Section 7.2) | CPA correlation of the 256 hypotheses for key byte 0 over the 9 000 optical traces. The correct hypothesis (0x54) stands out clearly from the 255 others. | `fig6` |
+| Figure 7 (Section 7.3) | Estimated log2 rank of the full 128-bit key versus the number of optical traces, at 0 dBm (mean over 100 independent attacks). The rank falls to 0, i.e. full recovery, after a few thousand traces. | `fig7` |
+| Figure 8 (Section 7.4) | Same key-rank estimation at a received power of about -11 dBm, which emulates the loss budget of a link of about 55 km. The key is still recovered, with many more traces than at 0 dBm. | `fig8` |
+| Figure 9 (Section 9.1) | Simulation of the impact of concurrent NRZ communication on the attack: log2 key rank versus number of traces for three scenarios (no communication, random NRZ bits, NRZ bits with selection of the traces in the high state). | `fig9` |
 
 ## Requirements
 
-- Docker (recommended), or Python 3.10 or later.
+- Docker (recommended). A native Python installation is also possible, see [Reproduction without Docker](docs/reproduction-without-docker.md).
 - Disk: about 6 GB for the three datasets (the largest archive, 5 GB, is deleted after extraction; up to about 10 GB are used temporarily). Only `sfp_0dbm` (450 MB) is needed for Table 2 and Figures 4, 5, 6 and 7.
 - CPU: the key-rank figures are the longest steps and run on several cores.
 - Architecture: x86_64 uses a prebuilt `scalib` wheel. On ARM (for example Apple Silicon), `scalib` is compiled from source when the Docker image is built, which adds about 2 minutes.
@@ -50,11 +49,7 @@ cd Shining-Channels
 docker build -t shining-channels .
 ```
 
-### Without Docker
-
-```bash
-pip install .
-```
+To run the artifact without Docker, see [Reproduction without Docker](docs/reproduction-without-docker.md).
 
 ## Quick start (a few minutes)
 
@@ -66,8 +61,6 @@ docker run --rm \
     -v "$PWD/results:/artifact/results" \
     shining-channels table2 fig4 fig5 fig6
 ```
-
-Without Docker: `shining-run-all table2 fig4 fig5 fig6`.
 
 Expected output:
 
@@ -89,7 +82,7 @@ docker run --rm \
     shining-channels
 ```
 
-Without Docker: `shining-run-all`. This downloads the three datasets (about 6 GB) and runs every step with the parameters of the paper.
+This downloads the three datasets (about 6 GB) and runs every step with the parameters of the paper.
 
 | Step | Output in `results/` | Dataset | Duration (On MacBook Pro M4 Max 128 Go) |
 |---|---|---|---|
@@ -102,11 +95,11 @@ Without Docker: `shining-run-all`. This downloads the three datasets (about 6 GB
 | `fig8` | `fig8_keyrank_attenuated.{png,pdf,npz}` | `sfp_attenuated` | about 9 min |
 | `fig9` | `fig9_nrz_rank.{png,pdf}`, `fig9_nrz_snr.{png,pdf}`, `fig9_nrz_results.npz`, `fig9_nrz_table.csv` | none (simulation) | about 2 min |
 
-Any subset of steps can be selected, for example `shining-run-all fig5 fig7`. Only the datasets needed by the selected steps are downloaded.
+Any subset of steps can be selected by listing them after the image name, for example `shining-channels fig5 fig7`. Only the datasets needed by the selected steps are downloaded.
 
 ### Choosing the time and space budget
 
-The default parameters are the ones of the paper. They can be changed on the command line:
+The default parameters are the ones of the paper. They can be changed on the command line, after the image name:
 
 | Option | Steps | Meaning | Default |
 |---|---|---|---|
@@ -117,8 +110,17 @@ The default parameters are the ones of the paper. They can be changed on the com
 | `--data` | all | directory of the datasets | `data` |
 | `--out` | all | directory of the results | `results` |
 
-For example, `shining-run-all fig7 --points 10 --experiments 10` takes less than a minute. With fewer experiments, the curves are noisier and the medians of Figure 9 differ slightly from the paper.
-Each figure script can also be run alone, for example `python -m shining_channels.figures.fig7_keyrank --help`.
+For example:
+
+```bash
+docker run --rm \
+    -v "$PWD/data:/artifact/data" \
+    -v "$PWD/results:/artifact/results" \
+    shining-channels fig7 --points 10 --experiments 10
+```
+
+takes less than a minute. With fewer experiments, the curves are noisier and the medians of Figure 9 differ slightly from the paper.
+Without Docker, the same options apply to `shining-run-all`, and each figure can also be run alone (see [Reproduction without Docker](docs/reproduction-without-docker.md)).
 
 ### Assembling the results in LaTeX
 
@@ -152,7 +154,7 @@ The `.npy` format was chosen because the traces are about 5 GB of 8-bit samples,
 
 ## Hardware used for the acquisition (not needed to run the artifact)
 
-- **Target:** a commercial SFP module with a MIPS SoC at 400 MHz running Linux, plugged into an Ethernet switch.
+- **Target:** a commercial SFP module with a MIPS SoC at 400 MHz running Linux (FS - SKU 133619), plugged into an Ethernet switch
 - **Optical chain:** a 1 m single-mode fiber from the SFP to a PIN photodiode (DXM21AF, 21 GHz bandwidth).
 - **Oscilloscope:** Teledyne LeCroy, 4 GHz analog bandwidth, 8-bit vertical resolution.
 - **Acquisition:** 1 GS/s over a 50 microsecond window, triggered by the rising edge of the optical signal.
@@ -169,6 +171,7 @@ src/shining_channels/
     run_all.py       command line entry point (shining-run-all)
     figures/         one module per table or figure
 latex/results.tex    assembles the results
+docs/                reproduction without Docker
 ```
 
 
