@@ -11,3 +11,4 @@ ToDo.md
 latex/*.aux
 latex/*.out
 latex/*.pdf
+build/
