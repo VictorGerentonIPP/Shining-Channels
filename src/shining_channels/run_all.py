@@ -17,7 +17,7 @@ STEPS = {
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Download the datasets and regenerate the figures and tables of the paper")
-    parser.add_argument("steps", nargs="*", default=list(STEPS), choices=list(STEPS))
+    parser.add_argument("steps", nargs="*", choices=list(STEPS))
     parser.add_argument("--data", default="data")
     parser.add_argument("--out", default="results")
     parser.add_argument("--points", type=int, help="fig7, fig8: number of trace counts")
@@ -25,12 +25,13 @@ def main(argv=None):
     parser.add_argument("--seed", type=int, help="fig7, fig8: random seed")
     parser.add_argument("--reps", type=int, help="fig9: independent experiments")
     args = parser.parse_args(argv)
+    steps = args.steps or list(STEPS)
 
-    datasets = sorted({STEPS[step][1] for step in args.steps if STEPS[step][1]})
+    datasets = sorted({STEPS[step][1] for step in steps if STEPS[step][1]})
     if datasets:
         fetch_datasets(datasets, args.data)
 
-    for step in args.steps:
+    for step in steps:
         module, dataset, options = STEPS[step]
         step_args = ["--out", args.out]
         if dataset:
